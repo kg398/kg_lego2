@@ -21,7 +21,7 @@ def main():
     burt = 0
     #burt = kgr.kg_robot(ee_port="COM38")
     #burt = kgr.kg_robot(port=30010,db_host="192.168.1.10")
-    burt = kgr.kg_robot(port=30010,db_host="192.168.1.10",ee_port="COM38")
+    #burt = kgr.kg_robot(port=30010,db_host="192.168.1.10",ee_port="COM38")
     print("----------------Hi Burt!-----------------\r\n\r\n")
 
     try:
@@ -56,11 +56,13 @@ def main():
             elif ipt == 'col':
                 model = []
                 while(True):
-                    human_layer,robot_layers = col.human_layer(model)
+                    human_layer,robot_layers,quit_flag = col.human_layer(model)
+                    if quit_flag == True:
+                        break
                     model.append(human_layer)
-                    model = col.assemble(burt,model,robot_layers)
-            elif ipt == 'hs':
-                col.assemble(col.human_layer())     #col.assemble takes a model and number of layers for the robot
+                    model = col.robot_layers(burt,model,robot_layers)
+            elif ipt == 'h':
+                col.assemble(burt)     #col.assemble takes a model and number of layers for the robot
 
             else:
                 var = int(input("var: "))

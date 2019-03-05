@@ -27,6 +27,7 @@ class Application(tk.Frame):
         self.bricks = 0
         self.w.withdraw()
         self.w.deiconify()
+        self.quit_flag = False
         
 
     def createWidgets(self):        
@@ -61,8 +62,9 @@ class Application(tk.Frame):
         self.w.quitButton.grid(row=16,column=30,columnspan=2) 
 
     def close(self):
+        self.quit_flag = True
         self.done()
-        sys.exit()
+        #sys.exit()
     
     def done(self): 
         self.robot_layers = self.w.robot_layer_demand.get()
@@ -128,24 +130,161 @@ class Application(tk.Frame):
                     self.w.lego_buttons[y][x].config(state=tk.NORMAL)
             self.brick_coords = [None,None]
 
+class Menu(tk.Frame):              
+    def __init__(self, master=None):
+        tk.Frame.__init__(self, master)   
+        self.grid()     
+        self.w = tk.Toplevel(self)
+        self.w.grid()
+        self.grid()
+        self.mode = 0
+        self.behaviour = 0
+        self.filename = ''
+        self.createWidgets()
+        self.w.withdraw()
+        self.w.deiconify()
+        self.quit_flag = False
+        
+
+    def createWidgets(self):
+        self.w.title = tk.Label(self.w,text='Robot Collaborator Configurer',font=32)
+        self.w.title.grid(columnspan=3)
+
+        #self.w.mb = tk.Menubutton(self.w,text="Menu",relief=tk.RAISED)
+        #self.w.mb.grid()
+
+        #self.w.mb.menu = tk.Menu(self.w.mb, tearoff=0)
+        #self.w.mb['menu'] = self.w.mb.menu
+        
+
+        #self.w.mode_mb = tk.Menubutton(self.w.mb.menu)
+        #self.w.mode_mb.grid()
+        #self.w.mode_mb.mode_menu = tk.Menu(self.w.mode_mb,tearoff=0)
+        #self.w.mode_mb['menu'] = self.w.mode_mb.mode_menu
+
+        #self.w.mb.menu.add_cascade(menu=self.w.mode_mb.mode_menu,label='Mode')
+
+        self.mode_states = []
+        self.mode_states.append(tk.IntVar())
+        self.mode_states.append(tk.IntVar())
+        #self.w.mode_mb.mode_menu.add_checkbutton(label='1.Alternating',command=partial(self.set_mode,1),variable=self.mode_states[0])
+        #self.w.mode_mb.mode_menu.add_checkbutton(label='2.Seed',command=partial(self.set_mode,2),variable=self.mode_states[1])
+        #self.mode_states[self.mode].set(1)
+
+        #self.w.behaviour_mb = tk.Menubutton(self.w.mb.menu)
+        #self.w.behaviour_mb.grid()
+        #self.w.behaviour_mb.behaviour_menu = tk.Menu(self.w.behaviour_mb,tearoff=0)
+        #self.w.behaviour_mb['menu'] = self.w.behaviour_mb.behaviour_menu
+
+        #self.w.mb.menu.add_cascade(menu=self.w.behaviour_mb.behaviour_menu,label='Behaviour')
+        
+        self.behaviour_states = []
+        self.behaviour_states.append(tk.IntVar())
+        self.behaviour_states.append(tk.IntVar())
+        #self.w.behaviour_mb.behaviour_menu.add_checkbutton(label='1.mimic',command=partial(self.set_behaviour,1),variable=self.behaviour_states[0])
+        #self.w.behaviour_mb.behaviour_menu.add_checkbutton(label='2.normal_dist',command=partial(self.set_behaviour,2),variable=self.behaviour_states[1])
+        #self.behaviour_states[self.behaviour].set(1)
 
 
+
+        self.w.mode_label = tk.LabelFrame(self.w, text='Mode')
+        self.w.mode_label.grid()
+
+        self.w.mode1 = tk.Checkbutton(self.w.mode_label,text='1.Alternating',command=partial(self.set_mode,1),variable=self.mode_states[0])
+        self.w.mode1.grid(sticky=tk.W)
+        self.w.mode2 = tk.Checkbutton(self.w.mode_label,text='2.Seed',command=partial(self.set_mode,2),variable=self.mode_states[1])
+        self.w.mode2.grid(sticky=tk.W)
+        self.mode_states[self.mode].set(1)
+
+        self.w.behaviour_label = tk.LabelFrame(self.w, text='Behaviour')
+        self.w.behaviour_label.grid(row=1,column=1)
+
+        self.w.behaviour1 = tk.Checkbutton(self.w.behaviour_label,text='1.mimic',command=partial(self.set_behaviour,1),variable=self.behaviour_states[0])
+        self.w.behaviour1.grid(sticky=tk.W)
+        self.w.behaviour2 = tk.Checkbutton(self.w.behaviour_label,text='2.normal_dist',command=partial(self.set_behaviour,2),variable=self.behaviour_states[1])
+        self.w.behaviour2.grid(sticky=tk.W)
+        self.behaviour_states[self.behaviour].set(1)
+
+        self.w.file_label = tk.LabelFrame(self.w, text='Starting Filename')
+        self.w.file_label.grid(row=1,column=2)
+
+        self.w.filename = tk.Entry(self.w.file_label,width=16,justify=tk.LEFT)
+        self.w.filename.grid()
+        self.w.filename.insert(0, 'example.txt')
+
+
+
+        self.w.done_button = tk.Button(self.w, text='Done', command=self.done,font=16)
+        self.w.done_button.grid(row=2,column=0,columnspan=2)
+
+        self.w.quitButton = tk.Button(self.w, text='Quit',command=self.close)
+        self.w.quitButton.grid(row=2,column=2,columnspan=2) 
+
+    def close(self):
+        self.quit_flag = True
+        self.done()
+        #sys.exit()
+    
+    def done(self): 
+        self.filename = self.w.filename.get()
+        #self.filename+='.txt'
+        self.w.withdraw()
+        self.quit()
+        self.destroy()
+
+    def set_mode(self,state):
+        for i in range(0,len(self.mode_states)):
+            if i!=state-1:
+                self.mode_states[i].set(0)
+        self.mode = state
+
+    def set_behaviour(self,state):
+        for i in range(0,len(self.behaviour_states)):
+            if i!=state-1:
+                self.behaviour_states[i].set(0)
+        self.behaviour = state
+
+def assemble(robot):
+    app = Menu()                       
+    app.master.title('Collaboration Configurer')    
+    app.mainloop()
+    print('mode: ',app.mode)
+    print('behaviour: ',app.behaviour)
+    print('starting file: ',app.filename)
+    if app.quit_flag == True:
+        return
+
+    model = []
+    if app.filename != '':
+        model = fd.import_file(app.filename)
+    while True:
+        human_model,nlayers,quit_flag = human_layer(model)
+        if quit_flag == True:
+            break
+        model.append(human_model)
+        model = robot_layers(robot,model,nlayers)
+
+        if app.mode == 2:
+            break
+
+    return
 
 def human_layer(previous_layer=0):
     app = Application(previous_layer=previous_layer)                       
-    app.master.title('Sample application')    
+    app.master.title('Collaboration Human Layer')    
     app.mainloop()
-
     #for y in range(0,16):
     #    for x in range(0,32):
     #        print(app.layer[y][x],end='')
     #    print('')
+    return app.layer, int(app.robot_layers), app.quit_flag
 
-    return app.layer, int(app.robot_layers)
-
-def assemble(robot,model,layers):
+def robot_layers(robot,model,layers,behaviour=1):
     for i in range(0,layers):
-        model = mimic(model)
+        if behaviour==1:
+            model = mimic(model)
+        elif behaviour==2:
+            model = normal_dist(model)
         #print('layer: ',i)
         #for y in range(0,16):
         #    for x in range(0,32):
@@ -166,10 +305,31 @@ def assemble(robot,model,layers):
     return model
 
 def mimic(model):
+    """human layer is directly copied"""
     bricks = []
     bricks = fd.decode_file([model[-1]])
     for i in range(0,len(bricks)):
         bricks[i]['z']+=int(len(model))
     model.append(copy.deepcopy(fd.grid_space))
     model = fd.add_bricks(bricks,model)
+    return model
+
+def normal_dist(model):
+    """robot layer is human layer copy with normal distribution disturbance"""
+    return model
+
+def weighted_normal_dist(model):
+    """robot layer is human layer copy with normal distribution disturbance, with deviation weighted by previous layers, e.g. higher deviation if previous layers share same bricks"""
+    return model
+
+def reinforce(model):
+    """robot layer copies pattern but attempts to overlap bricks"""
+    return model
+
+def dilate(model):
+    """robot layer copies pattern but dilates then erodes to fill in gaps and create bridges"""
+    return model
+
+def erode(model):
+    """robot layer copies pattern but erodes then dilates to separate nearby structures"""
     return model
