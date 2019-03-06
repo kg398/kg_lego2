@@ -68,7 +68,36 @@ def main():
             elif ipt == 'mt':
                 layer1,robot_layers,quit_flag = col.human_layer()
                 layer2,robot_layers,quit_flag = col.human_layer()
-                print(res.layers_match(layer1,layer2))
+                print(col.layers_match(layer1,layer2))
+            elif ipt == 'fg':
+                layer,robot_layers,quit_flag = col.human_layer()
+                for y in range(0,16):
+                    for x in range(0,32):
+                        print(layer[y][x],end='')
+                    print('')
+                layers = col.fill_gaps([layer])
+                print('\nrebricked layers')
+                for i in range(0,len(layers)):
+                    print('\nlayer: ',i)
+                    for y in range(0,16):
+                        for x in range(0,32):
+                            print(layers[i][y][x],end='')
+                        print('')
+            elif ipt == 'og':
+                layer,robot_layers,quit_flag = col.human_layer()
+                for y in range(0,16):
+                    for x in range(0,32):
+                        print(layer[y][x],end='')
+                    print('')
+                layers = col.open_gaps([layer])
+                print('\nrebricked layers')
+                for i in range(0,len(layers)):
+                    print('\nlayer: ',i)
+                    for y in range(0,16):
+                        for x in range(0,32):
+                            print(layers[i][y][x],end='')
+                        print('')
+
 
             elif ipt == 're':
                 layer,robot_layers,quit_flag = col.human_layer()

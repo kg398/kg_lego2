@@ -7,6 +7,7 @@ from functools import partial
 import sys
 import lego_moves as lm
 import assembly as ass
+import resampler as res
 
 import file_decoder as fd
 
@@ -181,6 +182,8 @@ class Menu(tk.Frame):
         self.behaviour_states = []
         self.behaviour_states.append(tk.IntVar())
         self.behaviour_states.append(tk.IntVar())
+        self.behaviour_states.append(tk.IntVar())
+        self.behaviour_states.append(tk.IntVar())
         #self.w.behaviour_mb.behaviour_menu.add_checkbutton(label='1.mimic',command=partial(self.set_behaviour,1),variable=self.behaviour_states[0])
         #self.w.behaviour_mb.behaviour_menu.add_checkbutton(label='2.normal_dist',command=partial(self.set_behaviour,2),variable=self.behaviour_states[1])
         #self.behaviour_states[self.behaviour].set(1)
@@ -203,6 +206,10 @@ class Menu(tk.Frame):
         self.w.behaviour1.grid(sticky=tk.W)
         self.w.behaviour2 = tk.Checkbutton(self.w.behaviour_label,text='2.normal_dist',command=partial(self.set_behaviour,2),variable=self.behaviour_states[1])
         self.w.behaviour2.grid(sticky=tk.W)
+        self.w.behaviour3 = tk.Checkbutton(self.w.behaviour_label,text='3.fill_gaps',command=partial(self.set_behaviour,3),variable=self.behaviour_states[2])
+        self.w.behaviour3.grid(sticky=tk.W)
+        self.w.behaviour3 = tk.Checkbutton(self.w.behaviour_label,text='4.open_gaps',command=partial(self.set_behaviour,4),variable=self.behaviour_states[3])
+        self.w.behaviour3.grid(sticky=tk.W)
         self.behaviour_states[self.behaviour].set(1)
 
         self.w.file_label = tk.LabelFrame(self.w, text='Starting Filename')
@@ -262,7 +269,7 @@ def assemble(robot):
         if quit_flag == True:
             break
         model.append(human_model)
-        model = robot_layers(robot,model,nlayers)
+        model = robot_layers(robot,model,nlayers,app.behaviour)
 
         if app.mode == 2:
             break
@@ -285,6 +292,10 @@ def robot_layers(robot,model,layers,behaviour=1):
             model = mimic(model)
         elif behaviour==2:
             model = normal_dist(model)
+        elif behaviour==3:
+            model = fill_gaps(model)
+        elif behaviour==4:
+            model = open_gaps(model)
         #print('layer: ',i)
         #for y in range(0,16):
         #    for x in range(0,32):
@@ -326,10 +337,26 @@ def reinforce(model):
     """robot layer copies pattern but attempts to overlap bricks"""
     return model
 
-def dilate(model):
+def fill_gaps(model):
     """robot layer copies pattern but dilates then erodes to fill in gaps and create bridges"""
-    return model
+    #first dilate then erode
+    layer = res.resample_layer(model[-1])
+    layer = res.dilate(model[-1])
+    layer = res.erode(layer)
+    layers = res.rebrick(layer)
+    
+    #model[-1] = copy.deepcopy(layers[choice])
+    #return model
+    return layers
 
-def erode(model):
+def open_gaps(model):
     """robot layer copies pattern but erodes then dilates to separate nearby structures"""
-    return model
+    #first dilate then erode
+    layer = res.resample_layer(model[-1])
+    layer = res.erode(model[-1])
+    layer = res.dilate(layer)
+    layers = res.rebrick(layer)
+    
+    #model[-1] = copy.deepcopy(layers[choice])
+    #return model
+    return layers

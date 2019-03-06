@@ -337,3 +337,65 @@ def layers_match(layer1,layer2):
                 if (layer1[y][x]==layer1[y+3][x+1] and layer1[y][x]>=2) and (layer2[y][x]!=layer2[y+3][x+1] or layer2[y][x]<2):
                     return False
     return True
+
+def dilate(layer):
+    new_layer = copy.deepcopy(layer)
+    for y in range(0,16):
+        for x in range(0,32):
+            if new_layer[y][x] == 0:
+                if y>0 and x>0:
+                    if layer[y-1][x-1] > 0:
+                        new_layer[y][x] = 1
+                if y>0:
+                    if layer[y-1][x] > 0:
+                        new_layer[y][x] = 1
+                if x>0:
+                    if layer[y][x-1] > 0:
+                        new_layer[y][x] = 1
+                if y<15 and x<31:
+                    if layer[y+1][x+1] > 0:
+                        new_layer[y][x] = 1
+                if y<15:
+                    if layer[y+1][x] > 0:
+                        new_layer[y][x] = 1
+                if x<31:
+                    if layer[y][x+1] > 0:
+                        new_layer[y][x] = 1
+                if y>0 and x<31:
+                    if layer[y-1][x+1] > 0:
+                        new_layer[y][x] = 1
+                if y<15 and x>0:
+                    if layer[y+1][x-1] > 0:
+                        new_layer[y][x] = 1
+    return new_layer
+
+def erode(layer):
+    new_layer = copy.deepcopy(layer)
+    for y in range(0,16):
+        for x in range(0,32):
+            if new_layer[y][x] > 0:
+                if y>0 and x>0:
+                    if layer[y-1][x-1] == 0:
+                        new_layer[y][x] = 0
+                if y>0:
+                    if layer[y-1][x] == 0:
+                        new_layer[y][x] = 0
+                if x>0:
+                    if layer[y][x-1] == 0:
+                        new_layer[y][x] = 0
+                if y<15 and x<31:
+                    if layer[y+1][x+1] == 0:
+                        new_layer[y][x] = 0
+                if y<15:
+                    if layer[y+1][x] == 0:
+                        new_layer[y][x] = 0
+                if x<31:
+                    if layer[y][x+1] == 0:
+                        new_layer[y][x] = 0
+                if y>0 and x<31:
+                    if layer[y-1][x+1] == 0:
+                        new_layer[y][x] = 0
+                if y<15 and x>0:
+                    if layer[y+1][x-1] == 0:
+                        new_layer[y][x] = 0
+    return new_layer
