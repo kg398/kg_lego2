@@ -14,6 +14,7 @@ import assembly as ass
 import disassembly as dis
 import collaboration as col
 import gui_test as gt
+import resampler as res
 
 
 def main():
@@ -64,6 +65,35 @@ def main():
             elif ipt == 'h':
                 col.assemble(burt)     #col.assemble takes a model and number of layers for the robot
 
+            elif ipt == 'mt':
+                layer1,robot_layers,quit_flag = col.human_layer()
+                layer2,robot_layers,quit_flag = col.human_layer()
+                print(res.layers_match(layer1,layer2))
+
+            elif ipt == 're':
+                layer,robot_layers,quit_flag = col.human_layer()
+                if quit_flag == True:
+                    break
+                print('\nhuman layer')
+                for y in range(0,16):
+                    for x in range(0,32):
+                        print(layer[y][x],end='')
+                    print('')
+                layer = res.resample_layer(layer)
+                print('\nresampled layer')
+                for y in range(0,16):
+                    for x in range(0,32):
+                        print(layer[y][x],end='')
+                    print('')
+                input('press enter to continue...')
+                layers = res.rebrick(layer)
+                print('\nrebricked layers')
+                for i in range(0,len(layers)):
+                    print('\nlayer: ',i)
+                    for y in range(0,16):
+                        for x in range(0,32):
+                            print(layers[i][y][x],end='')
+                        print('')
             else:
                 var = int(input("var: "))
                 burt.serial_send(ipt,var,True)
