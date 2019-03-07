@@ -79,7 +79,6 @@ def rebrick(layer):
         if deviation[i] < min_deviation:
             min_deviation = deviation[i]
         print(i,' deviation: ',deviation[i])
-
     final_layers = []
     for i in range(0,len(layers)):
         if deviation[i]==min_deviation:
@@ -92,29 +91,40 @@ def rebrick(layer):
         print(n)
         n+=1
         change_flag = 0
+        #for each layer
         for i in range(0,len(final_layers)):
             nbricks = 0
+            #get deviation
             deviation = compare_layers(layer,final_layers[i])
+            #get number of bricks
             for y in range(0,16):
                 for x in range(0,32):
                     if final_layers[i][y][x] > nbricks:
                         nbricks = final_layers[i][y][x]
+            #for each brick:
             for j in range(2,nbricks+1):
+                #copy layer
                 new_layer = copy.deepcopy(final_layers[i])
+                #remove that brick
                 for y in range(0,16):
                     for x in range(0,32):
                         if new_layer[y][x] == j:
                             new_layer[y][x] = 0
+                #check if new layer is unique
                 old_flag = 0
                 for k in range(0,len(final_layers)):
                     if layers_match(new_layer,final_layers[k]):
                         old_flag = 1
+                #if unique
                 if old_flag == 0:
+                    #compare deviation
                     new_deviation = compare_layers(layer,new_layer)
                     if new_deviation<deviation:
+                        #replace layer is better
                         final_layers[i] = copy.deepcopy(new_layer)
                         change_flag = 1
                     elif new_deviation == deviation:
+                        #append layer if the same
                         final_layers.append(copy.deepcopy(new_layer))
                         change_flag = 1
         if change_flag == 0:
@@ -134,7 +144,166 @@ def rebrick(layer):
         if deviation[i]==min_deviation:
             final_final_layers.append(final_layers[i])
 
-    return final_final_layers
+    # for each brick in each layer, check if it can be moved and if moving changes the deviation, if not copy layer
+    # repeat until all layers are worsened in this process
+    n = 0
+    while True:
+        print(n)
+        n+=1
+        change_flag = 0
+        #for each layer
+        for i in range(0,len(final_final_layers)):
+            nbricks = 0
+            #get deviation
+            deviation = compare_layers(layer,final_final_layers[i])
+            #get number of bricks
+            for y in range(0,16):
+                for x in range(0,32):
+                    if final_final_layers[i][y][x] > nbricks:
+                        nbricks = final_final_layers[i][y][x]
+            #for each brick
+            for j in range(2,nbricks+1):
+                #find brick direction and origin
+                dir = 0
+                xy = [0,0]
+                break_flag = 0
+                for y in range(0,16):
+                    if break_flag == 1:
+                        break
+                    for x in range(0,32):
+                        if final_final_layers[i][y][x] == j:
+                            xy[0]=x
+                            xy[1]=y
+                            break_flag = 1
+                            break
+                n = 0
+                while True:
+                    if final_final_layers[i][xy[1]][xy[0]+n] != j:
+                        if n>3:
+                            dir = 90
+                        break
+                    n+=1
+                for n in range(0,4):
+                    #create a copy
+                    new_layer = copy.deepcopy(final_final_layers[i])
+                    #move bricks by 1 space
+                    space_flag = 0
+                    if n == 0:
+                        if dir == 0:
+                            if xy[0]+2<32:
+                                if new_layer[xy[1]][xy[0]+2] == 0 and new_layer[xy[1]+1][xy[0]+2] == 0 and new_layer[xy[1]+2][xy[0]+2] == 0 and new_layer[xy[1]+3][xy[0]+2] == 0:
+                                    new_layer[xy[1]][xy[0]+2] = j
+                                    new_layer[xy[1]+1][xy[0]+2] = j
+                                    new_layer[xy[1]+2][xy[0]+2] = j
+                                    new_layer[xy[1]+3][xy[0]+2] = j
+                                    new_layer[xy[1]][xy[0]] = 0
+                                    new_layer[xy[1]+1][xy[0]] = 0
+                                    new_layer[xy[1]+2][xy[0]] = 0
+                                    new_layer[xy[1]+3][xy[0]] = 0
+                                    space_flag = 1
+                        elif dir == 90:
+                            if xy[0]+4<32:
+                                if new_layer[xy[1]][xy[0]+4] == 0 and new_layer[xy[1]+1][xy[0]+4] == 0:
+                                    new_layer[xy[1]][xy[0]+4] = j
+                                    new_layer[xy[1]+1][xy[0]+4] = j
+                                    new_layer[xy[1]][xy[0]] = 0
+                                    new_layer[xy[1]+1][xy[0]] = 0
+                                    space_flag = 1
+                    elif n == 1:
+                        if dir == 90:
+                            if xy[1]+2<16:
+                                if new_layer[xy[1]+2][xy[0]] == 0 and new_layer[xy[1]+2][xy[0]+1] == 0 and new_layer[xy[1]+2][xy[0]+2] == 0 and new_layer[xy[1]+2][xy[0]+3] == 0:
+                                    new_layer[xy[1]+2][xy[0]] = j
+                                    new_layer[xy[1]+2][xy[0]+1] = j
+                                    new_layer[xy[1]+2][xy[0]+2] = j
+                                    new_layer[xy[1]+2][xy[0]+3] = j
+                                    new_layer[xy[1]][xy[0]] = 0
+                                    new_layer[xy[1]][xy[0]+1] = 0
+                                    new_layer[xy[1]][xy[0]+2] = 0
+                                    new_layer[xy[1]][xy[0]+3] = 0
+                                    space_flag = 1
+                        elif dir == 0:
+                            if xy[1]+4<16:
+                                if new_layer[xy[1]+4][xy[0]] == 0 and new_layer[xy[1]+4][xy[0]+1] == 0:
+                                    new_layer[xy[1]+4][xy[0]] = j
+                                    new_layer[xy[1]+4][xy[0]+1] = j
+                                    new_layer[xy[1]][xy[0]] = 0
+                                    new_layer[xy[1]][xy[0]+1] = 0
+                                    space_flag = 1
+                    elif n == 2:
+                        if dir == 0:
+                            if xy[0]-1>-1:
+                                if new_layer[xy[1]][xy[0]-1] == 0 and new_layer[xy[1]+1][xy[0]-1] == 0 and new_layer[xy[1]+2][xy[0]-1] == 0 and new_layer[xy[1]+3][xy[0]-1] == 0:
+                                    new_layer[xy[1]][xy[0]-1] = j
+                                    new_layer[xy[1]+1][xy[0]-1] = j
+                                    new_layer[xy[1]+2][xy[0]-1] = j
+                                    new_layer[xy[1]+3][xy[0]-1] = j
+                                    new_layer[xy[1]][xy[0]+1] = 0
+                                    new_layer[xy[1]+1][xy[0]+1] = 0
+                                    new_layer[xy[1]+2][xy[0]+1] = 0
+                                    new_layer[xy[1]+3][xy[0]+1] = 0
+                                    space_flag = 1
+                        elif dir == 90:
+                            if xy[0]-1>-1:
+                                if new_layer[xy[1]][xy[0]-1] == 0 and new_layer[xy[1]+1][xy[0]-1] == 0:
+                                    new_layer[xy[1]][xy[0]-1] = j
+                                    new_layer[xy[1]+1][xy[0]-1] = j
+                                    new_layer[xy[1]][xy[0]+3] = 0
+                                    new_layer[xy[1]+1][xy[0]+3] = 0
+                                    space_flag = 1
+                    elif n == 3:
+                        if dir == 90:
+                            if xy[1]-1>-1:
+                                if new_layer[xy[1]-1][xy[0]] == 0 and new_layer[xy[1]-1][xy[0]+1] == 0 and new_layer[xy[1]-1][xy[0]+2] == 0 and new_layer[xy[1]-1][xy[0]+3] == 0:
+                                    new_layer[xy[1]-1][xy[0]] = j
+                                    new_layer[xy[1]-1][xy[0]+1] = j
+                                    new_layer[xy[1]-1][xy[0]+2] = j
+                                    new_layer[xy[1]-1][xy[0]+3] = j
+                                    new_layer[xy[1]+1][xy[0]] = 0
+                                    new_layer[xy[1]+1][xy[0]+1] = 0
+                                    new_layer[xy[1]+1][xy[0]+2] = 0
+                                    new_layer[xy[1]+1][xy[0]+3] = 0
+                                    space_flag = 1
+                        elif dir == 0:
+                            if xy[1]-1>-1:
+                                if new_layer[xy[1]-1][xy[0]] == 0 and new_layer[xy[1]-1][xy[0]+1] == 0:
+                                    new_layer[xy[1]-1][xy[0]] = j
+                                    new_layer[xy[1]-1][xy[0]+1] = j
+                                    new_layer[xy[1]+3][xy[0]] = 0
+                                    new_layer[xy[1]+3][xy[0]+1] = 0
+                                    space_flag = 1
+
+                    if space_flag==1:
+                        old_flag = 0
+                        for k in range(0,len(final_final_layers)):
+                            if layers_match(new_layer,final_final_layers[k]):
+                                old_flag = 1
+                        if old_flag == 0:
+                            new_deviation = compare_layers(layer,new_layer)
+                            if new_deviation<deviation:
+                                final_final_layers[i] = copy.deepcopy(new_layer)
+                                change_flag = 1
+                            elif new_deviation == deviation:
+                                final_final_layers.append(copy.deepcopy(new_layer))
+                                change_flag = 1
+        if change_flag == 0:
+            break
+
+    # re decimate
+    min_deviation = 32*16
+    deviation = []
+    for i in range(0,len(final_final_layers)):
+        deviation.append(compare_layers(layer,final_final_layers[i]))
+        if deviation[i] < min_deviation:
+            min_deviation = deviation[i]
+        print(i,' deviation: ',deviation[i])
+
+    final_final_final_layers = []
+    for i in range(0,len(final_final_layers)):
+        if deviation[i]==min_deviation:
+            final_final_final_layers.append(final_final_layers[i])
+
+    return final_final_final_layers
 
 def rebrick_from_dist(layer):
     """rebrick but from a probability distribution"""
@@ -320,6 +489,109 @@ def recursive_populate_layer_nxny(layer,next_brick_id=2,layer_number=0):
                         for j in range(0,4):
                             layers[0][y-i][x-j] = brick_id
                     brick_id+=1
+    print('recursive layer',layer_number,' finished')
+    return layers
+
+def spiral_scan(x,y):
+    """generate ranges for spiral scan pattern"""
+    xrange = range(0,32)
+    yrange = range(0,16)
+    dir = 0
+    return xrange,yrange,dir
+
+def recursive_populate_layer_perim(layer,next_brick_id=2,layer_number=0,x_start=0,y_start=0):
+    """populate layer by turning so1's in groups of 2x4"""
+    print('layer ',layer_number,' started')
+    layers = [copy.deepcopy(layer)]
+    brick_id = next_brick_id
+    x = x_start
+    y = y_start
+    while not(x==7 and y==8):
+        xrange,yrange,dir = spiral_scan(x,y)
+        for y in yrange:
+            for x in xrange:
+                if layers[0][y][x] == 1:
+                    flag0 = 0
+                    flag90 = 0
+                    for i in range(0,2):
+                        for j in range(0,4):
+                            if dir == 0:
+                                if y+j>15 or x+i>31:
+                                    flag0 = 1
+                                elif layers[0][y+j][x+i] > 1:
+                                    flag0 = 1
+                                if y+i>15 or x+j>31:
+                                    flag90 = 1
+                                elif layers[0][y+i][x+j] > 1:
+                                    flag90 = 1
+                            elif dir == 1:
+                                if y+j>15 or x-i<0:
+                                    flag0 = 1
+                                elif layers[0][y+j][x-i] > 1:
+                                    flag0 = 1
+                                if y+i>15 or x-j<0:
+                                    flag90 = 1
+                                elif layers[0][y+i][x-j] > 1:
+                                    flag90 = 1
+                            elif dir == 2:
+                                if y-j<0 or x+i>31:
+                                    flag0 = 1
+                                elif layers[0][y-j][x+i] > 1:
+                                    flag0 = 1
+                                if y-i<0 or x+j>31:
+                                    flag90 = 1
+                                elif layers[0][y-i][x+j] > 1:
+                                    flag90 = 1
+                            elif dir == 3:
+                                if y-j<0 or x-i<0:
+                                    flag0 = 1
+                                elif layers[0][y-j][x-i] > 1:
+                                    flag0 = 1
+                                if y-i<0 or x-j<0:
+                                    flag90 = 1
+                                elif layers[0][y-i][x-j] > 1:
+                                    flag90 = 1
+                    if flag0 == 0:
+                        if flag90 == 0:
+                            new_layer = copy.deepcopy(layers[0])
+                            new_id = brick_id
+                            for i in range(0,2):
+                                for j in range(0,4):
+                                    if dir == 0:
+                                        new_layer[y+i][x+j] = new_id
+                                    elif dir == 1:
+                                        new_layer[y+i][x-j] = new_id
+                                    elif dir == 2:
+                                        new_layer[y-i][x+j] = new_id
+                                    elif dir == 3:
+                                        new_layer[y-i][x-j] = new_id
+                            new_id+=1
+                            new_layers = recursive_populate_layer_perim(new_layer,new_id,layer_number+1,x,y)
+                            for k in range(0,len(new_layers)):
+                                layers.append(new_layers[k])
+                        for i in range(0,2):
+                            for j in range(0,4):
+                                if dir == 0:
+                                    layers[0][y+j][x+i] = brick_id
+                                elif dir == 1:
+                                    layers[0][y+j][x-i] = brick_id
+                                elif dir == 2:
+                                    layers[0][y-j][x+i] = brick_id
+                                elif dir == 3:
+                                    layers[0][y-j][x-i] = brick_id
+                        brick_id+=1
+                    elif flag90 == 0:
+                        for i in range(0,2):
+                            for j in range(0,4):
+                                if dir == 0:
+                                    layers[0][y+i][x+j] = brick_id
+                                elif dir == 1:
+                                    layers[0][y+i][x-j] = brick_id
+                                elif dir == 2:
+                                    layers[0][y-i][x+j] = brick_id
+                                elif dir == 3:
+                                    layers[0][y-i][x-j] = brick_id
+                        brick_id+=1
     print('recursive layer',layer_number,' finished')
     return layers
 

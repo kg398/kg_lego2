@@ -140,6 +140,7 @@ class Menu(tk.Frame):
         self.grid()
         self.mode = 0
         self.behaviour = 0
+        self.modifier = 0
         self.filename = ''
         self.createWidgets()
         self.w.withdraw()
@@ -165,9 +166,6 @@ class Menu(tk.Frame):
 
         #self.w.mb.menu.add_cascade(menu=self.w.mode_mb.mode_menu,label='Mode')
 
-        self.mode_states = []
-        self.mode_states.append(tk.IntVar())
-        self.mode_states.append(tk.IntVar())
         #self.w.mode_mb.mode_menu.add_checkbutton(label='1.Alternating',command=partial(self.set_mode,1),variable=self.mode_states[0])
         #self.w.mode_mb.mode_menu.add_checkbutton(label='2.Seed',command=partial(self.set_mode,2),variable=self.mode_states[1])
         #self.mode_states[self.mode].set(1)
@@ -179,45 +177,61 @@ class Menu(tk.Frame):
 
         #self.w.mb.menu.add_cascade(menu=self.w.behaviour_mb.behaviour_menu,label='Behaviour')
         
-        self.behaviour_states = []
-        self.behaviour_states.append(tk.IntVar())
-        self.behaviour_states.append(tk.IntVar())
-        self.behaviour_states.append(tk.IntVar())
-        self.behaviour_states.append(tk.IntVar())
         #self.w.behaviour_mb.behaviour_menu.add_checkbutton(label='1.mimic',command=partial(self.set_behaviour,1),variable=self.behaviour_states[0])
         #self.w.behaviour_mb.behaviour_menu.add_checkbutton(label='2.normal_dist',command=partial(self.set_behaviour,2),variable=self.behaviour_states[1])
         #self.behaviour_states[self.behaviour].set(1)
 
 
+        self.mode_states = []
+        self.mode_states.append(tk.IntVar())
+        self.mode_states.append(tk.IntVar())
 
         self.w.mode_label = tk.LabelFrame(self.w, text='Mode')
         self.w.mode_label.grid()
 
-        self.w.mode1 = tk.Checkbutton(self.w.mode_label,text='1.Alternating',command=partial(self.set_mode,1),variable=self.mode_states[0])
+        self.w.mode1 = tk.Checkbutton(self.w.mode_label,text='1.Alternating',command=partial(self.set_mode,0),variable=self.mode_states[0])
         self.w.mode1.grid(sticky=tk.W)
-        self.w.mode2 = tk.Checkbutton(self.w.mode_label,text='2.Seed',command=partial(self.set_mode,2),variable=self.mode_states[1])
+        self.w.mode2 = tk.Checkbutton(self.w.mode_label,text='2.Seed',command=partial(self.set_mode,1),variable=self.mode_states[1])
         self.w.mode2.grid(sticky=tk.W)
         self.mode_states[self.mode].set(1)
+
+
+        self.behaviour_states = []
+        self.behaviour_states.append(tk.IntVar())
+        self.behaviour_states.append(tk.IntVar())
 
         self.w.behaviour_label = tk.LabelFrame(self.w, text='Behaviour')
         self.w.behaviour_label.grid(row=1,column=1)
 
-        self.w.behaviour1 = tk.Checkbutton(self.w.behaviour_label,text='1.mimic',command=partial(self.set_behaviour,1),variable=self.behaviour_states[0])
+        self.w.behaviour1 = tk.Checkbutton(self.w.behaviour_label,text='1.mimic',command=partial(self.set_behaviour,0),variable=self.behaviour_states[0])
         self.w.behaviour1.grid(sticky=tk.W)
-        self.w.behaviour2 = tk.Checkbutton(self.w.behaviour_label,text='2.normal_dist',command=partial(self.set_behaviour,2),variable=self.behaviour_states[1])
+        self.w.behaviour2 = tk.Checkbutton(self.w.behaviour_label,text='2.normal_dist',command=partial(self.set_behaviour,1),variable=self.behaviour_states[1])
         self.w.behaviour2.grid(sticky=tk.W)
-        self.w.behaviour3 = tk.Checkbutton(self.w.behaviour_label,text='3.fill_gaps',command=partial(self.set_behaviour,3),variable=self.behaviour_states[2])
-        self.w.behaviour3.grid(sticky=tk.W)
-        self.w.behaviour3 = tk.Checkbutton(self.w.behaviour_label,text='4.open_gaps',command=partial(self.set_behaviour,4),variable=self.behaviour_states[3])
-        self.w.behaviour3.grid(sticky=tk.W)
         self.behaviour_states[self.behaviour].set(1)
 
+
+        self.modifier_states = []
+        self.modifier_states.append(tk.IntVar())
+        self.modifier_states.append(tk.IntVar())
+        self.modifier_states.append(tk.IntVar())
+
+        self.w.modifier_label = tk.LabelFrame(self.w, text='Modifier')
+        self.w.modifier_label.grid(row=1,column=2)
+
+        self.w.modifier1 = tk.Checkbutton(self.w.behaviour_label,text='1.normal',command=partial(self.set_modifier,0),variable=self.modifier_states[0])
+        self.w.modifier1.grid(sticky=tk.W)
+        self.w.modifier2 = tk.Checkbutton(self.w.behaviour_label,text='2.fill_gaps',command=partial(self.set_modifier,1),variable=self.modifier_states[1])
+        self.w.modifier2.grid(sticky=tk.W)
+        self.w.modifier3 = tk.Checkbutton(self.w.behaviour_label,text='3.open_gaps',command=partial(self.set_modifier,2),variable=self.modifier_states[2])
+        self.w.modifier3.grid(sticky=tk.W)
+        self.modifier_states[self.modifier].set(1)
+
         self.w.file_label = tk.LabelFrame(self.w, text='Starting Filename')
-        self.w.file_label.grid(row=1,column=2)
+        self.w.file_label.grid(row=1,column=3)
 
         self.w.filename = tk.Entry(self.w.file_label,width=16,justify=tk.LEFT)
         self.w.filename.grid()
-        self.w.filename.insert(0, 'example.txt')
+        self.w.filename.insert(0, '.txt')
 
 
 
@@ -250,6 +264,12 @@ class Menu(tk.Frame):
             if i!=state-1:
                 self.behaviour_states[i].set(0)
         self.behaviour = state
+
+    def set_modifier(self,state):
+        for i in range(0,len(self.modifier_states)):
+            if i!=state-1:
+                self.modifier_states[i].set(0)
+        self.modifier = state
 
 def assemble(robot):
     app = Menu()                       
@@ -286,15 +306,16 @@ def human_layer(previous_layer=0):
     #    print('')
     return app.layer, int(app.robot_layers), app.quit_flag
 
-def robot_layers(robot,model,layers,behaviour=1):
+def robot_layers(robot,model,layers,behaviour=0,modifier=0):
     for i in range(0,layers):
-        if behaviour==1:
+        if behaviour==0:
             model = mimic(model)
-        elif behaviour==2:
+        elif behaviour==1:
             model = normal_dist(model)
-        elif behaviour==3:
+        
+        if modifier==1:
             model = fill_gaps(model)
-        elif behaviour==4:
+        elif modifier==2:
             model = open_gaps(model)
         #print('layer: ',i)
         #for y in range(0,16):
